@@ -106,25 +106,24 @@
     </select>
 
     <!-- 查询订单 -->
-    <select id="queryOrderOne" parameterType="java.lang.Long" resultType="java.util.HashMap">
-        select
-            a.id ,
-            a.ent_id,
-            a.region_code,
-            a.amount,
-            a.mobile,
-            a.create_time,
-            a.update_time,
-            b.address,
-            c.good_name
-        FROM
-            t_ent_order a , t_ent_order_detail b ,t_ent_order_item c
-        where
-            a.id = #{id}
-          and
-            a.id = b.order_id
-          and
-            a.id = c.order_id
+    <select id="queryOrderOne"  resultType="java.util.HashMap">
+        select a.id,
+               a.ent_id,
+               a.region_code,
+               a.amount,
+               a.mobile,
+               a.create_time,
+               a.update_time,
+               b.address,
+               c.good_name
+        FROM t_ent_order a,
+             t_ent_order_detail b,
+             t_ent_order_item c
+        where a.id = #{id}
+          and a.id = b.order_id
+          and a.id = c.order_id
+          and a.create_time = #{data}
+
     </select>
 
     <select id="queryOrderListDemo"  resultType="java.util.HashMap">

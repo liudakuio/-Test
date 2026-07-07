@@ -31,7 +31,9 @@ public class OrderService {
     }
 
     public List<Map<String, Object>> queryOrderOne(Long orderId) {
-        return orderMapper.queryOrderOne(orderId);
+        Map<String, Object> stringObjectMap = orderMapper.queryOrder(orderId);
+        Date date = (Date) stringObjectMap.get("create_time");
+        return orderMapper.queryOrderOne(orderId,date);
     }
 
     public List<Map<String, Object>> queryOrderList(Integer page) {

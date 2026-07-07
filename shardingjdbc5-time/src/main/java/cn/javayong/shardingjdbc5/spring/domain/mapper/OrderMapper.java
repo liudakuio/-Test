@@ -3,8 +3,10 @@ package cn.javayong.shardingjdbc5.spring.domain.mapper;
 import cn.javayong.shardingjdbc5.spring.domain.po.TEntOrder;
 import cn.javayong.shardingjdbc5.spring.domain.po.TEntOrderDetail;
 import cn.javayong.shardingjdbc5.spring.domain.po.TEntOrderItem;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public interface OrderMapper {
 
     Map<String,Object> queryOrder(Long orderId);
 
-    List<Map<String,Object>> queryOrderOne(Long orderId);
+    List<Map<String,Object>> queryOrderOne(@Param("id") Long orderId, @Param("data") Date data);
 
     List<Map<String,Object>> queryOrderListDemo();
 
