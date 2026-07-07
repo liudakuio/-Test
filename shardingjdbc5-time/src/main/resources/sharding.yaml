@@ -1,0 +1,42 @@
+dataSources:
+  ds:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/ds_0?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+
+rules:
+  - !SHARDING
+    tables:
+      t_ent_order:
+        actualDataNodes: ds.t_ent_order
+
+      t_ent_order_detail:
+        actualDataNodes: ds.t_ent_order_detail
+
+      t_ent_order_item:
+#        修改成年 月 日
+        actualDataNodes: ds.t_ent_order_item_$->{2024..2030}
+        tableStrategy:
+          standard:
+#            修改字段
+            shardingColumn: create_time
+            shardingAlgorithmName: year-algorithm
+
+    bindingTables:
+      - t_ent_order,t_ent_order_detail
+
+    shardingAlgorithms:
+      year-algorithm:
+        type: CLASS_BASED
+        props:
+          strategy: standard
+          algorithmClassName: cn.javayong.shardingjdbc5.spring.common.sharding.YearShardingAlgorithm
+
+  - !BROADCAST
+    tables:
+      - t_city
+
+props:
+  sql-show: true
