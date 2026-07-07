@@ -1,4 +1,3 @@
-![](https://javayong.cn/pics/shipinhao/gongzhonghaonew.png)
 
 在笔者心中，**消息队列**，**缓存**，**分库分表**是高并发解决方案三剑客。
 
