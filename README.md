@@ -9,16 +9,12 @@
 因此笔者做了一个教学型分库分表示例项目 ，计划将分库分表的技术体系都实际演示一遍。
 
 当前项目包含三个模块 :
+- **shardingjdbc5-spring**：使用 shardingsphere-JDBC 5.X 实现分表功能
 
-- **shardingjdbc4-spring**：使用 shardingsphere-JDBC 4.X 实现分库分表功能
-- **shardingjdbc5-spring**：使用 shardingsphere-JDBC 5.X 实现分库分表功能
-- **idgenerator**: 基于 grpc 实现一个简单的服务端 ID 生成器
-
-本文档重点讲解 shardingsphere JDBC 4.x 如何整合 spring。 
 
 # 1 业务分析
 
-笔者曾经为武汉一家 O2O 公司订单服务做过分库分表架构设计 ，当企业用户创建一条采购订单 ， 会生成如下记录：
+笔者曾经为公司订单服务做过分库分表架构设计 ，当企业用户创建一条采购订单 ， 会生成如下记录：
 
 - 订单基础表 **t_ent_order**  ：单条记录
 
