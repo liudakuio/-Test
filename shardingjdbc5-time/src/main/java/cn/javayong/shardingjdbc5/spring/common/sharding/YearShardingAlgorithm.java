@@ -50,7 +50,6 @@ public class YearShardingAlgorithm implements StandardShardingAlgorithm<Date> {
 
         String targetTable = shardingValue.getLogicTableName() + "_" + year;
 
-        log.info("逻辑表：{}", shardingValue.getLogicTableName());
         log.info("年份：{}", year);
         log.info("目标表：{}", targetTable);
 
@@ -60,8 +59,7 @@ public class YearShardingAlgorithm implements StandardShardingAlgorithm<Date> {
             }
         }
 
-        throw new UnsupportedOperationException(
-                "不存在目标表：" + targetTable);
+        throw new UnsupportedOperationException("不存在目标表：" + targetTable);
     }
 
     /**

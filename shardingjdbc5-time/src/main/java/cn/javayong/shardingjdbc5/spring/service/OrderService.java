@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class OrderService {
@@ -100,58 +103,92 @@ public class OrderService {
     }
 
     public void batchsave() {
-        for (int i = 0; i < 100; i++) {
-            Long entId = RandomUtils.nextLong();
-            String regionCode = "BJ";
+        // 创建固定大小线程池
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        // 用于等待所有线程执行完成
+        CountDownLatch countDownLatch = new CountDownLatch(100000);
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++) {
+            executorService.submit(() -> {
+                try {
+                    Long entId = RandomUtils.nextLong();
+                    String regionCode = "BJ";
+                    // =========================
+                    // 保存订单基本信息
+                    // =========================
+                    TEntOrder tEntOrder = new TEntOrder();
 
-            //保存订单基本信息
-            TEntOrder tEntOrder = new TEntOrder();
-            Long orderId = redisIdGeneratorService.createUniqueId(String.valueOf(entId));
-            tEntOrder.setId(orderId);
-            tEntOrder.setRegionCode(regionCode);
-            tEntOrder.setAmount(new BigDecimal(12.0));
-            tEntOrder.setMobile("150****9235");
-            tEntOrder.setEntId(entId);
-            orderMapper.saveOrder(tEntOrder);
+                    Long orderId = redisIdGeneratorService
+                            .createUniqueId(String.valueOf(entId));
+                    tEntOrder.setId(orderId);
+                    tEntOrder.setRegionCode(regionCode);
+                    tEntOrder.setAmount(new BigDecimal("12.0"));
+                    tEntOrder.setMobile("150****9235");
+                    tEntOrder.setEntId(entId);
+                    orderMapper.saveOrder(tEntOrder);
+                    // =========================
+                    // 保存订单详情
+                    // =========================
+                    TEntOrderDetail tEntOrderDetail = new TEntOrderDetail();
 
-            //保存订单详情
-            TEntOrderDetail tEntOrderDetail = new TEntOrderDetail();
-            Long detailId = redisIdGeneratorService.createUniqueId(String.valueOf(entId));
-            tEntOrderDetail.setId(detailId);
-            tEntOrderDetail.setAddress("湖北武汉东西湖区");
-            tEntOrderDetail.setOrderId(orderId);
-            tEntOrderDetail.setEntId(entId);
-            tEntOrderDetail.setStatus(1);
-            tEntOrderDetail.setRegionCode(regionCode);
-            orderMapper.saveOrderDetail(tEntOrderDetail);
-
-            //保存订单条目表
-            {
-                //保存条目 1
-                TEntOrderItem item1 = new TEntOrderItem();
-                Date randomTime = getRandomTime();
-                Long itemId = redisIdGeneratorService.createUniqueId(String.valueOf(entId));
-                item1.setId(itemId);
-                item1.setEntId(entId);
-                item1.setOrderId(orderId);
-                item1.setRegionCode("BG");
-                item1.setGoodId("aaaaaaaaaaaa");
-                item1.setGoodName("我的商品111111");
-                item1.setCreateTime(randomTime);
-                orderMapper.saveOrderItem(item1);
-                //保存条目 2
-                TEntOrderItem item2 = new TEntOrderItem();
-                Long itemId2 = redisIdGeneratorService.createUniqueId(String.valueOf(entId));
-                item2.setId(itemId2);
-                item2.setEntId(entId);
-                item2.setRegionCode("BJ");
-                item2.setOrderId(orderId);
-                item2.setGoodId("bbbbbbbbbbbb");
-                item2.setGoodName("我的商品22222");
-                item2.setCreateTime(randomTime);
-                orderMapper.saveOrderItem(item2);
-            }
+                    Long detailId = redisIdGeneratorService
+                            .createUniqueId(String.valueOf(entId));
+                    tEntOrderDetail.setId(detailId);
+                    tEntOrderDetail.setAddress("湖北武汉东西湖区");
+                    tEntOrderDetail.setOrderId(orderId);
+                    tEntOrderDetail.setEntId(entId);
+                    tEntOrderDetail.setStatus(1);
+                    tEntOrderDetail.setRegionCode(regionCode);
+                    orderMapper.saveOrderDetail(tEntOrderDetail);
+                    // =========================
+                    // 保存订单条目1
+                    // =========================
+                    Date randomTime = getRandomTime();
+                    TEntOrderItem item1 = new TEntOrderItem();
+                    Long itemId = redisIdGeneratorService
+                            .createUniqueId(String.valueOf(entId));
+                    item1.setId(itemId);
+                    item1.setEntId(entId);
+                    item1.setOrderId(orderId);
+                    item1.setRegionCode("BG");
+                    item1.setGoodId("aaaaaaaaaaaa");
+                    item1.setGoodName("我的商品111111");
+                    item1.setCreateTime(randomTime);
+                    orderMapper.saveOrderItem(item1);
+                    // =========================
+                    // 保存订单条目2
+                    // =========================
+                    TEntOrderItem item2 = new TEntOrderItem();
+                    Long itemId2 = redisIdGeneratorService
+                            .createUniqueId(String.valueOf(entId));
+                    item2.setId(itemId2);
+                    item2.setEntId(entId);
+                    item2.setRegionCode("BJ");
+                    item2.setOrderId(orderId);
+                    item2.setGoodId("bbbbbbbbbbbb");
+                    item2.setGoodName("我的商品22222");
+                    item2.setCreateTime(randomTime);
+                    orderMapper.saveOrderItem(item2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // 当前任务执行完成
+                    countDownLatch.countDown();
+                }
+            });
         }
+        try {
+            // 等待10000个任务全部完成
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // 关闭线程池
+        executorService.shutdown();
+        long endTime = System.currentTimeMillis();
+        System.out.println("插入完成");
+        System.out.println("耗时：" + (endTime - startTime) + " ms");
     }
 
     public static Date getRandomTime() {

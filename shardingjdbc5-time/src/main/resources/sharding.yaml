@@ -39,4 +39,4 @@ rules:
       - t_city
 
 props:
-  sql-show: true
+  sql-show: false
